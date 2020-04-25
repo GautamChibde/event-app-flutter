@@ -30,7 +30,7 @@ dependencies:
   flutter_bloc: ^4.0.0
   flutter_dialogs: ^1.0.3
   image_picker: ^0.6.5+2
-  image_crop: ^0.3.2
+  image_cropper: ^1.2.1
 
   permission_handler: ^5.0.0+hotfix.4
 

@@ -1,5 +1,5 @@
 import 'package:eventapp/model/user.dart';
-import 'package:eventapp/repository/auth_repository.dart';
+import 'package:eventapp/service/auth_service.dart';
 import 'package:rxdart/rxdart.dart';
 
 class UserProfileBloc {
@@ -12,7 +12,7 @@ class UserProfileBloc {
   }
 
   Future<void> getUser() async {
-    await AuthRepository.instance
+    await AuthService.instance
         .getUserIfLoggedIn()
         .then((value) => _userSubject.sink.add(value))
         .catchError((onError) { print("onError");});

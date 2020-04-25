@@ -9,13 +9,13 @@ enum AuthStatus {
   loggedOut,
 }
 
-class AuthRepository {
+class AuthService {
   FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final UserRepository _userRepository;
 
-  static final AuthRepository instance = AuthRepository(UserRepository());
+  static final AuthService instance = AuthService(UserRepository());
 
-  AuthRepository(this._userRepository);
+  AuthService(this._userRepository);
 
   Future<User> getUserIfLoggedIn() async {
     FirebaseUser firebaseUser = await _firebaseAuth.currentUser();

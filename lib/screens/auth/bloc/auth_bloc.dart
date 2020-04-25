@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:eventapp/model/user.dart';
-import 'package:eventapp/repository/auth_repository.dart';
+import 'package:eventapp/service/auth_service.dart';
 import 'package:eventapp/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:meta/meta.dart';
@@ -26,7 +26,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } else if (event is CreateUserProfileEvent) {
       yield LoggedInSuccessState(event.user);
     } else if (event is CheckUserEvent) {
-      User user = await AuthRepository.instance.getUserIfLoggedIn();
+      User user = await AuthService.instance.getUserIfLoggedIn();
       if (user != null) {
         yield ProfileCreatedState();
       }
@@ -82,7 +82,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         if (!firebaseUser.isEmailVerified) {
           _errorMessage.sink.add("Email is not verfied, Please check email and click on verification link");
         } else {
-          final user = await AuthRepository.instance.getUserIfLoggedIn();
+          final user = await AuthService.instance.getUserIfLoggedIn();
           print("user verifivation  user  " + user.toString());
           if (user == null) {
             add(CreateUserProfileEvent(
@@ -112,7 +112,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> resetPassword(String email) async {
-    await AuthRepository.instance.resetPassword(email);
+    await AuthService.instance.resetPassword(email);
   }
 
   void onChangeRestEmail(String email) {

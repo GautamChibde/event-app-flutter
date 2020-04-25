@@ -1,7 +1,7 @@
-import 'package:eventapp/repository/auth_repository.dart';
 import 'package:eventapp/screens/auth/login_page.dart';
 import 'package:eventapp/screens/event/events_page.dart';
 import 'package:eventapp/screens/user/edit_user_profile_page.dart';
+import 'package:eventapp/service/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class SplashPage extends StatefulWidget {
@@ -17,7 +17,7 @@ class _SplashPageState extends State<SplashPage> {
     Future.delayed(
       Duration(seconds: 1),
     ).then(
-      (value) => AuthRepository.instance.getAuthStatus().then(
+      (value) => AuthService.instance.getAuthStatus().then(
         (AuthStatus status) {
           switch (status) {
             case AuthStatus.loggedIn:
@@ -57,7 +57,7 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   void _navigateToEditProfile() {
-    AuthRepository.instance
+    AuthService.instance
         .getCurrentUser()
         .then(
           (user) => Navigator.popAndPushNamed(

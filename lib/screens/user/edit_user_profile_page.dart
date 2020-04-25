@@ -106,12 +106,9 @@ class _EditUserProfilePageState extends State<EditUserProfilePage> {
                           height: 200,
                           width: 200,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100),
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(color: Colors.green, spreadRadius: 4),
-                            ],
-                          ),
+                              borderRadius: BorderRadius.circular(100),
+                              border:
+                                  Border.all(color: Colors.green, width: 8)),
                           child: Center(child: CircularProgressIndicator())),
                     );
                   return _userProfileAvatar(context, snapshotImage.data);
@@ -130,12 +127,8 @@ class _EditUserProfilePageState extends State<EditUserProfilePage> {
             width: 200,
             height: 200,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(100),
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(color: Colors.green, spreadRadius: 4),
-              ],
-            ),
+                borderRadius: BorderRadius.circular(100),
+                border: Border.all(color: Colors.green, width: 8)),
             child: Container(
               width: 200,
               height: 200,
@@ -147,19 +140,25 @@ class _EditUserProfilePageState extends State<EditUserProfilePage> {
                         color: Colors.green,
                         size: 200.0,
                       )
-                    : Image.network(
-                        data,
-                        fit: BoxFit.cover,
-                        height: 200,
-                        width: 200,
+                    : Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          CircularProgressIndicator(),
+                          Image.network(
+                            data,
+                            height: 200,
+                            width: 200,
+                            fit: BoxFit.cover,
+                          ),
+                        ],
                       ),
               ),
             ),
           ),
         ),
         Positioned(
-          bottom: 0,
-          left: MediaQuery.of(context).size.width / 2 + 36,
+          bottom: 4,
+          left: MediaQuery.of(context).size.width / 2 + 30,
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(100),

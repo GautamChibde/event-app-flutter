@@ -1,8 +1,9 @@
 import 'package:eventapp/model/user.dart';
-import 'package:eventapp/repository/auth_repository.dart';
 import 'package:eventapp/screens/user/bloc/user_profile_bloc.dart';
 import 'package:eventapp/screens/user/edit_user_profile_page.dart';
+import 'package:eventapp/service/auth_service.dart';
 import 'package:eventapp/utils/utils.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class UserProfilePage extends StatefulWidget {
@@ -74,7 +75,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       ),
       color: Colors.red,
       onPressed: () {
-        AuthRepository.instance.signOut();
+        AuthService.instance.signOut();
       },
     );
   }
@@ -83,7 +84,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
     return Expanded(
       child: OutlineButton(
         child: Text("Edit Profile"),
-        onPressed: () async{
+        onPressed: () async {
           await Navigator.pushNamed(context, EditUserProfilePage.kRoute,
               arguments: user);
           _userProfileBloc.getUser();
@@ -132,21 +133,32 @@ class _UserProfilePageState extends State<UserProfilePage> {
   Align _profileImage(String imageUrl) {
     return Align(
       alignment: Alignment.topCenter,
-      child: imageUrl.isNotEmpty
-          ? ClipRRect(
-              borderRadius: BorderRadius.circular(75.0),
-              child: Image.network(
-                imageUrl,
-                height: 150,
-                width: 150,
-                fit: BoxFit.cover,
-              ),
-            )
-          : Icon(
-              Icons.account_circle,
-              color: Colors.green,
-              size: 150.0,
-            ),
+      child: Container(
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(150),
+            border: Border.all(color: Colors.green, width: 8)),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(100.0),
+          child: imageUrl.isNotEmpty
+              ? Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    Image.network(
+                      imageUrl,
+                      height: 150,
+                      width: 150,
+                      fit: BoxFit.cover,
+                    ),
+                  ],
+                )
+              : Icon(
+                  CupertinoIcons.person_solid,
+                  color: Colors.green,
+                  size: 150.0,
+                ),
+        ),
+      ),
     );
   }
 

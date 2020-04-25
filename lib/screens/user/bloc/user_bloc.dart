@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
-import 'package:eventapp/firebase_storage_service.dart';
 import 'package:eventapp/model/user.dart';
 import 'package:eventapp/repository/user_repository.dart';
+import 'package:eventapp/service/firebase_storage_service.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 

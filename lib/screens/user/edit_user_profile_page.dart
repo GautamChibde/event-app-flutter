@@ -6,9 +6,9 @@ import 'package:eventapp/screens/event/events_page.dart';
 import 'package:eventapp/screens/user/bloc/user_bloc.dart';
 import 'package:eventapp/utils/image_utils.dart';
 import 'package:eventapp/utils/permission_handler.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class EditUserProfilePage extends StatefulWidget {
   final User user;
@@ -87,31 +87,93 @@ class _EditUserProfilePageState extends State<EditUserProfilePage> {
   }
 
   Widget _profileImage() {
-    return GestureDetector(
-      onTap: () {
-        _captureImage();
-      },
-      child: Stack(
-        children: [
-          Align(
-            alignment: Alignment.center,
-            child: Icon(
-              Icons.account_circle,
-              color: Colors.lightGreen,
-              size: 200.0,
+    return StreamBuilder<String>(
+        stream: _userBloc.imageUrl,
+        builder: (context, AsyncSnapshot<String> snapshotImage) {
+          return GestureDetector(
+            onTap: () async {
+              if (snapshotImage.hasData) {
+                await _captureImage(snapshotImage.data);
+              }
+            },
+            child: StreamBuilder<bool>(
+                stream: _userBloc.imageLoading,
+                builder: (context, snapshotLoading) {
+                  if (!snapshotLoading.hasData) return Text("error");
+                  if (snapshotLoading.data || !snapshotImage.hasData)
+                    return Center(
+                      child: Container(
+                          height: 200,
+                          width: 200,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(100),
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(color: Colors.green, spreadRadius: 4),
+                            ],
+                          ),
+                          child: Center(child: CircularProgressIndicator())),
+                    );
+                  return _userProfileAvatar(context, snapshotImage.data);
+                }),
+          );
+        });
+  }
+
+  Stack _userProfileAvatar(BuildContext context, String data) {
+    print("image data " + data);
+    return Stack(
+      children: [
+        Align(
+          alignment: Alignment.center,
+          child: Container(
+            width: 200,
+            height: 200,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(100),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(color: Colors.green, spreadRadius: 4),
+              ],
+            ),
+            child: Container(
+              width: 200,
+              height: 200,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(100.0),
+                child: data.isEmpty
+                    ? Icon(
+                        CupertinoIcons.person_solid,
+                        color: Colors.green,
+                        size: 200.0,
+                      )
+                    : Image.network(
+                        data,
+                        fit: BoxFit.cover,
+                        height: 200,
+                        width: 200,
+                      ),
+              ),
             ),
           ),
-          Positioned(
-            bottom: 16,
-            left: MediaQuery.of(context).size.width / 2 + 24,
+        ),
+        Positioned(
+          bottom: 0,
+          left: MediaQuery.of(context).size.width / 2 + 36,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(100),
+              color: Colors.green,
+            ),
+            padding: EdgeInsets.all(8),
             child: Icon(
               Icons.camera_alt,
-              size: 36,
-              color: Colors.blueAccent,
+              size: 24,
+              color: Colors.white,
             ),
-          )
-        ],
-      ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -185,18 +247,24 @@ class _EditUserProfilePageState extends State<EditUserProfilePage> {
     ));
   }
 
-  Future _captureImage() async {
+  Future _captureImage(String data) async {
     bool permissionGranted = true;
     if (Platform.isAndroid) {
-      permissionGranted = await PermissionsService.instance.requestStoragePermission();
+      permissionGranted =
+          await PermissionsService.instance.requestStoragePermission();
     }
     if (permissionGranted) {
       File imageFile = await ImageUtils.pickImage(
-        context
+        context,
+        onRemove: data == null
+            ? null
+            : () {
+                _userBloc.removeImage();
+              },
       );
-      // if (imageFile != null) {
-      //   _accountManagerBloc.dispatch(UpdateImageEvent(imageFile.path));
-      // }
+      if (imageFile != null) {
+        await _userBloc.updateImage(imageFile);
+      }
     }
   }
 }

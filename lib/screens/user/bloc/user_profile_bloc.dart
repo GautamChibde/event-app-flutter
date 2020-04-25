@@ -8,7 +8,11 @@ class UserProfileBloc {
   Stream<User> get user => _userSubject.stream;
 
   UserProfileBloc() {
-    AuthRepository.instance
+    getUser();
+  }
+
+  Future<void> getUser() async {
+    await AuthRepository.instance
         .getUserIfLoggedIn()
         .then((value) => _userSubject.sink.add(value))
         .catchError((onError) { print("onError");});

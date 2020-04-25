@@ -38,7 +38,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
-                  _profileImage(),
+                  _profileImage(user.imageUrl),
                   SizedBox(height: 12),
                   _userName(user),
                   SizedBox(height: 4),
@@ -83,9 +83,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
     return Expanded(
       child: OutlineButton(
         child: Text("Edit Profile"),
-        onPressed: () {
-          Navigator.pushNamed(context, EditUserProfilePage.kRoute,
+        onPressed: () async{
+          await Navigator.pushNamed(context, EditUserProfilePage.kRoute,
               arguments: user);
+          _userProfileBloc.getUser();
         },
       ),
     );
@@ -128,18 +129,24 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
-  Align _profileImage() {
+  Align _profileImage(String imageUrl) {
     return Align(
       alignment: Alignment.topCenter,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(75.0),
-        child: Image.network(
-          "https://as01.epimg.net/en/imagenes/2019/09/24/football/1569310945_447431_noticia_normal.jpg",
-          height: 150,
-          width: 150,
-          fit: BoxFit.cover,
-        ),
-      ),
+      child: imageUrl.isNotEmpty
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(75.0),
+              child: Image.network(
+                imageUrl,
+                height: 150,
+                width: 150,
+                fit: BoxFit.cover,
+              ),
+            )
+          : Icon(
+              Icons.account_circle,
+              color: Colors.green,
+              size: 150.0,
+            ),
     );
   }
 

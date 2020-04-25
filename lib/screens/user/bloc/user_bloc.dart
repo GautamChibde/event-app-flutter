@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:bloc/bloc.dart';
+import 'package:eventapp/firebase_storage_service.dart';
 import 'package:eventapp/model/user.dart';
 import 'package:eventapp/repository/user_repository.dart';
 import 'package:meta/meta.dart';
@@ -17,7 +19,19 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   Stream<bool> get loading => _loadingSubject.stream;
 
-  UserBloc(this.userRepository, this.user);
+  final _imageUrlSubject = BehaviorSubject<String>();
+
+  Stream<String> get imageUrl => _imageUrlSubject.stream;
+
+  final _imageLoadingSubject = BehaviorSubject<bool>.seeded(false);
+
+  Stream<bool> get imageLoading => _imageLoadingSubject.stream;
+
+  UserBloc(this.userRepository, this.user) {
+    if (user.imageUrl != null || user.imageUrl.isNotEmpty) {
+      _imageUrlSubject.sink.add(user.imageUrl);
+    }
+  }
 
   @override
   UserState get initialState => UserInitial();
@@ -42,7 +56,36 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   @override
   Future<void> close() {
+    _imageLoadingSubject.close();
     _loadingSubject.close();
+    _imageUrlSubject.close();
     return super.close();
+  }
+
+  Future<void> removeImage() async {
+    _imageLoadingSubject.sink.add(true);
+    await FirebaseStorageService.instance.deleteImage(_imageUrlSubject.value);
+    await userRepository.update(
+      user.copyWith(
+        imageUrl: "",
+      ),
+    );
+    _imageLoadingSubject.sink.add(false);
+    _imageUrlSubject.sink.add("");
+  }
+
+  Future<void> updateImage(File imageFile) async {
+    _imageLoadingSubject.sink.add(true);
+    if (_imageUrlSubject.value != null && _imageUrlSubject.value.isNotEmpty) {
+      await FirebaseStorageService.instance.deleteImage(_imageUrlSubject.value);
+    }
+    String path = await FirebaseStorageService.instance.uploadImage(imageFile);
+    await userRepository.update(
+      user.copyWith(
+        imageUrl: path,
+      ),
+    );
+    _imageUrlSubject.sink.add(path);
+    _imageLoadingSubject.sink.add(false);
   }
 }

@@ -1,7 +1,7 @@
 import 'package:eventapp/model/user.dart';
+import 'package:eventapp/screens/add_event/add_event.dart';
 import 'package:eventapp/screens/auth/login_page.dart';
 import 'package:eventapp/screens/auth/signup_page.dart';
-import 'package:eventapp/screens/event/add_event.dart';
 import 'package:eventapp/screens/event/events_page.dart';
 import 'package:eventapp/screens/user/edit_user_profile_page.dart';
 import 'package:eventapp/screens/user/user_profile_page.dart';

@@ -1,7 +1,7 @@
 import 'package:eventapp/model/event.dart';
 import 'package:eventapp/repository/event_repository.dart';
+import 'package:eventapp/screens/add_event/add_event.dart';
 import 'package:eventapp/screens/auth/login_page.dart';
-import 'package:eventapp/screens/event/add_event.dart';
 import 'package:eventapp/screens/event/bloc/event_bloc.dart';
 import 'package:eventapp/screens/user/user_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';

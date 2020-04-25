@@ -32,7 +32,7 @@ class ImageUtils {
               File path = await _pickImageCamera();
               Navigator.of(context).pop(path);
             },
-            child: Text("Camers")),
+            child: Text("Camera")),
         CupertinoActionSheetAction(
             onPressed: () async {
               File path = await _pickImageGallery();
@@ -59,23 +59,18 @@ class ImageUtils {
       child: new Wrap(
         children: <Widget>[
           new ListTile(
-              leading: new Icon(
-                Icons.camera_alt,
-                color: Colors.white,
-              ),
+              leading: new Icon(Icons.camera_alt),
               title: new Text(
                 "Camera",
-                style: TextStyle(color: Colors.white),
               ),
               onTap: () async {
                 File path = await _pickImageCamera();
                 Navigator.of(context).pop(path);
               }),
           new ListTile(
-            leading: new Icon(Icons.insert_photo, color: Colors.white),
+            leading: new Icon(Icons.insert_photo),
             title: new Text(
               "Gallery",
-              style: TextStyle(color: Colors.white),
             ),
             onTap: () async {
               final path = await _pickImageGallery();
@@ -84,13 +79,9 @@ class ImageUtils {
           ),
           if (onRemove != null) ...[
             ListTile(
-              leading: new Icon(
-                Icons.remove_circle,
-                color: Colors.white,
-              ),
+              leading: new Icon(Icons.remove_circle),
               title: new Text(
                 "Remove",
-                style: TextStyle(color: Colors.white),
               ),
               onTap: () async {
                 onRemove();

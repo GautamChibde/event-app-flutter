@@ -30,7 +30,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       body: StreamBuilder(
         stream: _userProfileBloc.user,
         builder: (context, AsyncSnapshot<User> snapshot) {
-          if (!snapshot.hasData) return _initialLoader(context);
+          if (!snapshot.hasData) return LinearProgressIndicator();
           final user = snapshot.data;
           return SafeArea(
             child: Padding(
@@ -138,20 +138,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
           height: 150,
           width: 150,
           fit: BoxFit.cover,
-        ),
-      ),
-    );
-  }
-
-  Container _initialLoader(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width * 0.6,
-      height: MediaQuery.of(context).size.height * 0.4,
-      child: Center(
-        child: SizedBox(
-          child: CircularProgressIndicator(),
-          height: 52,
-          width: 52,
         ),
       ),
     );

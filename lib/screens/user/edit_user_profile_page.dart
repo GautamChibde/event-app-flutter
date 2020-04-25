@@ -1,9 +1,14 @@
+import 'dart:io';
+
 import 'package:eventapp/model/user.dart';
 import 'package:eventapp/repository/user_repository.dart';
 import 'package:eventapp/screens/event/events_page.dart';
 import 'package:eventapp/screens/user/bloc/user_bloc.dart';
+import 'package:eventapp/utils/image_utils.dart';
+import 'package:eventapp/utils/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class EditUserProfilePage extends StatefulWidget {
   final User user;
@@ -67,6 +72,8 @@ class _EditUserProfilePageState extends State<EditUserProfilePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
+          _profileImage(),
+          SizedBox(height: 16),
           _firstName(),
           SizedBox(height: 12),
           _lastName(),
@@ -74,6 +81,35 @@ class _EditUserProfilePageState extends State<EditUserProfilePage> {
           _bio(),
           SizedBox(height: 12),
           _save()
+        ],
+      ),
+    );
+  }
+
+  Widget _profileImage() {
+    return GestureDetector(
+      onTap: () {
+        _captureImage();
+      },
+      child: Stack(
+        children: [
+          Align(
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.account_circle,
+              color: Colors.lightGreen,
+              size: 200.0,
+            ),
+          ),
+          Positioned(
+            bottom: 16,
+            left: MediaQuery.of(context).size.width / 2 + 24,
+            child: Icon(
+              Icons.camera_alt,
+              size: 36,
+              color: Colors.blueAccent,
+            ),
+          )
         ],
       ),
     );
@@ -125,17 +161,16 @@ class _EditUserProfilePageState extends State<EditUserProfilePage> {
   Widget _save() {
     return MaterialButton(
       child: StreamBuilder<bool>(
-        stream: _userBloc.loading,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return Text("Error");
-          if (snapshot.data) {
-            return CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            );
-          }
-          return Text("Save".toUpperCase());
-        }
-      ),
+          stream: _userBloc.loading,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) return Text("Error");
+            if (snapshot.data) {
+              return CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              );
+            }
+            return Text("Save".toUpperCase());
+          }),
       color: Colors.green,
       textColor: Colors.white,
       onPressed: () => _onSave(),
@@ -148,5 +183,20 @@ class _EditUserProfilePageState extends State<EditUserProfilePage> {
       lastName: _lastNameController.text,
       bio: _bioController.text,
     ));
+  }
+
+  Future _captureImage() async {
+    bool permissionGranted = true;
+    if (Platform.isAndroid) {
+      permissionGranted = await PermissionsService.instance.requestStoragePermission();
+    }
+    if (permissionGranted) {
+      File imageFile = await ImageUtils.pickImage(
+        context
+      );
+      // if (imageFile != null) {
+      //   _accountManagerBloc.dispatch(UpdateImageEvent(imageFile.path));
+      // }
+    }
   }
 }

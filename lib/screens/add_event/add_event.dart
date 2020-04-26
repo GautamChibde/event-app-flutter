@@ -353,8 +353,8 @@ class _AddEventState extends State<AddEvent> {
     return showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2019),
-      lastDate: DateTime.now(),
+      firstDate: DateTime.now().subtract(new Duration(days: 30)),
+      lastDate: DateTime.now().add(new Duration(days: 30)),
       builder: (BuildContext context, Widget child) {
         return Theme(
           data: ThemeData.dark(),

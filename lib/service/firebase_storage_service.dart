@@ -21,6 +21,7 @@ class FirebaseStorageService {
       file,
     );
     await uploadTask.onComplete;
+    await file.delete();
     return await storageRef.getDownloadURL();
   }
 

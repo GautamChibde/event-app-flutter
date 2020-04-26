@@ -1,11 +1,12 @@
 import 'dart:io';
 
+import 'package:eventapp/repository/event_repository.dart';
 import 'package:eventapp/screens/add_event/bloc/add_event_bloc.dart';
+import 'package:eventapp/service/firebase_storage_service.dart';
 import 'package:eventapp/utils/image_utils.dart';
 import 'package:eventapp/utils/permission_handler.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class AddEvent extends StatefulWidget {
   static const kRoute = "/addevent";
@@ -18,19 +19,26 @@ class _AddEventState extends State<AddEvent> {
   final _nameController = TextEditingController();
   final _dateController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _locationController = TextEditingController();
   final _startTimeController = TextEditingController();
+
+  final _formKey = GlobalKey<FormState>();
 
   AddEventBloc _addEventBloc;
 
   @override
   void initState() {
-    _addEventBloc = AddEventBloc();
+    _addEventBloc = AddEventBloc(
+      FirebaseEventRepository.instance,
+      FirebaseStorageService.instance,
+    );
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    _dateController.text = DateFormat("dd/MM/yyyy").format(DateTime.now());
+    _dateController.text = _addEventBloc.formattedDate;
+    _startTimeController.text = _addEventBloc.formattedStartTime;
     return Scaffold(
       appBar: AppBar(
         title: Center(child: Text("New Event")),
@@ -38,19 +46,37 @@ class _AddEventState extends State<AddEvent> {
       backgroundColor: Colors.white,
       body: _body(context),
       bottomNavigationBar: BottomAppBar(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: RaisedButton(
-            color: Colors.green,
-            onPressed: () {},
-            child: Text(
-              "SAVE",
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ),
+        child: StreamBuilder<bool>(
+            stream: _addEventBloc.loading,
+            builder: (context, snapshot) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: RaisedButton(
+                  color: Colors.green,
+                  onPressed: () async {
+                    if (_formKey.currentState.validate()) {
+                      await _addEventBloc.createEvent(
+                        _nameController.text,
+                        _descriptionController.text,
+                        _locationController.text,
+                      );
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: snapshot.data
+                      ? CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        )
+                      : Text(
+                          "SAVE",
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                ),
+              );
+            }),
       ),
     );
   }
@@ -60,6 +86,7 @@ class _AddEventState extends State<AddEvent> {
       child: Container(
         padding: EdgeInsets.all(12),
         child: Form(
+          key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -67,6 +94,7 @@ class _AddEventState extends State<AddEvent> {
               SizedBox(height: 16),
               _inputDescription(context),
               SizedBox(height: 16),
+              _inputLocation(),
               Row(
                 children: [
                   Flexible(flex: 1, child: _inputDate(context)),
@@ -78,38 +106,13 @@ class _AddEventState extends State<AddEvent> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    "DURATION:",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 8,
-                  ),
-                  Text(
-                    _getTime(),
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  )
+                  _labelDuration(),
+                  SizedBox(width: 8),
+                  _inputDuration(),
                 ],
               ),
               SizedBox(height: 16),
-              Slider(
-                  min: 30,
-                  max: 480,
-                  divisions: 11,
-                  value: this.value,
-                  onChanged: (v) {
-                    setState(() {
-                      this.value = v;
-                    });
-                  }),
+              _inputDurationSlider(),
               SizedBox(height: 16),
               _inputImage(context),
             ],
@@ -119,12 +122,42 @@ class _AddEventState extends State<AddEvent> {
     );
   }
 
-  double value = 60;
+  Widget _inputDurationSlider() {
+    return Slider(
+      min: 30,
+      max: 480,
+      divisions: 30,
+      value: _addEventBloc.duration,
+      onChanged: (v) {
+        setState(
+          () {
+            _addEventBloc.duration = v;
+          },
+        );
+      },
+    );
+  }
 
-  String _getTime() {
-    final hour = this.value / 60;
-    final minute = this.value % 60;
-    return "${hour.toInt()} h ${minute.toInt()} min";
+  Text _labelDuration() {
+    return Text(
+      "DURATION:",
+      style: TextStyle(
+        color: Colors.black,
+        fontSize: 17,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
+  Text _inputDuration() {
+    return Text(
+      _addEventBloc.getTime(),
+      style: TextStyle(
+        color: Colors.black,
+        fontSize: 15,
+        fontWeight: FontWeight.w400,
+      ),
+    );
   }
 
   Widget _inputName(BuildContext context) {
@@ -132,6 +165,12 @@ class _AddEventState extends State<AddEvent> {
       controller: _nameController,
       textInputAction: TextInputAction.next,
       keyboardType: TextInputType.text,
+      validator: (value) {
+        if (value.isEmpty) {
+          return "Please Enter name";
+        }
+        return null;
+      },
       decoration: InputDecoration(
         border: OutlineInputBorder(),
         suffixStyle: TextStyle(color: Colors.green),
@@ -145,6 +184,12 @@ class _AddEventState extends State<AddEvent> {
       controller: _descriptionController,
       textInputAction: TextInputAction.next,
       keyboardType: TextInputType.text,
+      validator: (value) {
+        if (value.isEmpty) {
+          return "Please Enter description";
+        }
+        return null;
+      },
       decoration: InputDecoration(
         border: OutlineInputBorder(),
         suffixStyle: TextStyle(color: Colors.green),
@@ -153,49 +198,21 @@ class _AddEventState extends State<AddEvent> {
     );
   }
 
-  Widget _inputImage(BuildContext context) {
-    return GestureDetector(
-      onTap: () async {
-        await _captureImage(null);
+  _inputLocation() {
+    return TextFormField(
+      controller: _locationController,
+      textInputAction: TextInputAction.next,
+      keyboardType: TextInputType.text,
+      validator: (value) {
+        if (value.isEmpty) {
+          return "Please Enter location";
+        }
+        return null;
       },
-      child: StreamBuilder<String>(
-        stream: _addEventBloc.imageUrl,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return AspectRatio(
-              aspectRatio: 16 / 9,
-              child: _imagePlaceholder(),
-            );
-          }
-          return Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.grey, width: 2),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Image.file(
-                File(snapshot.data),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Container _imagePlaceholder() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey, width: 2),
-      ),
-      child: Center(
-        child: Icon(
-          CupertinoIcons.photo_camera,
-          color: Colors.grey,
-          size: 100,
-        ),
+      decoration: InputDecoration(
+        border: OutlineInputBorder(),
+        suffixStyle: TextStyle(color: Colors.green),
+        labelText: "Location",
       ),
     );
   }
@@ -249,6 +266,53 @@ class _AddEventState extends State<AddEvent> {
               labelText: "Start Time",
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _inputImage(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        await _captureImage(null);
+      },
+      child: StreamBuilder<String>(
+        stream: _addEventBloc.imageUrl,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return AspectRatio(
+              aspectRatio: 16 / 9,
+              child: _imagePlaceholder(),
+            );
+          }
+          return Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Color(0xFFB7B7B7), width: 1),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.file(
+                File(snapshot.data),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Container _imagePlaceholder() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Color(0xFFB7B7B7), width: 1),
+      ),
+      child: Center(
+        child: Icon(
+          CupertinoIcons.photo_camera,
+          color: Color(0xFFB7B7B7),
+          size: 100,
         ),
       ),
     );

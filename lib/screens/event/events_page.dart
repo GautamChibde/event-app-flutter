@@ -20,7 +20,7 @@ class _EventsPageState extends State<EventsPage> {
 
   @override
   void initState() {
-    _eventBloc = EventBloc(FirebaseEventRepository());
+    _eventBloc = EventBloc(FirebaseEventRepository.instance);
     FirebaseAuth.instance.onAuthStateChanged.listen((firebaseUser) {
       if (firebaseUser == null) {
         Navigator.of(context).pushNamedAndRemoveUntil(

@@ -4,33 +4,41 @@ class Event {
   String id;
   String title;
   String description;
+  String location;
   String imageUrl;
+  int startTime;
+  int endTime;
   int date;
 
-  Event(this.id, this.title, this.description, this.imageUrl, this.date);
+  Event(
+    this.title,
+    this.description,
+    this.location,
+    this.date,
+    this.startTime,
+    this.endTime, {
+    this.id,
+    this.imageUrl,
+  });
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Event &&
-          runtimeType == other.runtimeType &&
-          title == other.title &&
-          description == other.description &&
-          imageUrl == other.imageUrl &&
-          date == other.date;
-
-  @override
-  int get hashCode =>
-      title.hashCode ^ description.hashCode ^ imageUrl.hashCode ^ date.hashCode;
-
-  Event copyWith(
-      {String title, String description, String imageUrl, int date}) {
+  Event copyWith({
+    String title,
+    String description,
+    String imageUrl,
+    String location,
+    int startTime,
+    int endTime,
+    int date,
+  }) {
     return Event(
-      this.id,
       title ?? this.title,
       description ?? this.description,
-      imageUrl ?? this.imageUrl,
+      location ?? this.location,
       date ?? this.date,
+      startTime ?? this.startTime,
+      endTime ?? this.endTime,
+      imageUrl: imageUrl ?? this.imageUrl,
+      id: this.id,
     );
   }
 
@@ -45,16 +53,22 @@ class Event {
       'description': description,
       'image': imageUrl,
       'date': date,
+      'location': location,
+      'start_time': startTime,
+      'end_time': endTime,
     };
   }
 
   static Event fromSnapshot(DocumentSnapshot document) {
     return new Event(
-      document.documentID,
       document['name'],
       document['description'],
-      document['image'],
+      document['location'],
       document['date'],
+      document['start_time'] as int,
+      document['end_time'] as int,
+      imageUrl: document['image'],
+      id: document.documentID,
     );
   }
 }

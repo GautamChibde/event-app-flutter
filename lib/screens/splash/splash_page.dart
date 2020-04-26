@@ -66,8 +66,12 @@ class _SplashPageState extends State<SplashPage> {
             arguments: user,
           ),
         )
-        .catchError((error) {
-      print("SplashPage _navigateToEditProfile error" + error.toString());
-    });
+        .catchError(
+      (error) {
+        print(
+          "SplashPage _navigateToEditProfile error" + error.toString(),
+        );
+      },
+    );
   }
 }

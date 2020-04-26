@@ -32,7 +32,7 @@ class _EditUserProfilePageState extends State<EditUserProfilePage> {
 
   @override
   void initState() {
-    _userBloc = UserBloc(UserRepository(), this.user);
+    _userBloc = UserBloc(UserRepository.instance, this.user);
     _firstNameController..text = user.firstName ?? "";
     _lastNameController..text = user.lastName ?? "";
     _bioController..text = user.bio ?? "";
@@ -118,7 +118,6 @@ class _EditUserProfilePageState extends State<EditUserProfilePage> {
   }
 
   Stack _userProfileAvatar(BuildContext context, String data) {
-    print("image data " + data);
     return Stack(
       children: [
         Align(
@@ -127,8 +126,12 @@ class _EditUserProfilePageState extends State<EditUserProfilePage> {
             width: 200,
             height: 200,
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(100),
-                border: Border.all(color: Colors.green, width: 8)),
+              borderRadius: BorderRadius.circular(100),
+              border: Border.all(
+                color: Colors.green,
+                width: 8,
+              ),
+            ),
             child: Container(
               width: 200,
               height: 200,

@@ -34,22 +34,7 @@ class _EventsPageState extends State<EventsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return _body(context);
-  }
-
-  Scaffold _body(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Upcomming events"),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.account_circle),
-            onPressed: () {
-              Navigator.pushNamed(context, UserProfilePage.kRoute);
-            },
-          )
-        ],
-      ),
       backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -63,60 +48,187 @@ class _EventsPageState extends State<EventsPage> {
         child: Icon(Icons.add),
         backgroundColor: Colors.green,
       ),
-      body: _eventStreamBuilder(),
+      body: _body(),
     );
   }
 
-  Widget _eventStreamBuilder() {
-    return StreamBuilder(
-      stream: _eventBloc.events,
-      builder: (context, AsyncSnapshot<List<Event>> snapshot) {
-        if (!snapshot.hasData) return CircularProgressIndicator();
-        return ListView.builder(
-          itemCount: snapshot.data.length,
-          scrollDirection: Axis.vertical,
-          itemBuilder: (context, index) {
-            return _createItem(snapshot.data[index]);
-          },
-        );
-      },
+  Widget _body() {
+    return SafeArea(
+      child: Column(
+        children: [
+          _appBar(),
+          Expanded(
+            child: StreamBuilder(
+              stream: _eventBloc.events,
+              builder: (context, AsyncSnapshot<List<Event>> snapshot) {
+                if (!snapshot.hasData) return CircularProgressIndicator();
+                return ListView.builder(
+                  itemCount: snapshot.data.length,
+                  scrollDirection: Axis.vertical,
+                  itemBuilder: (context, index) {
+                    return _createItem(
+                      snapshot.data[index],
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _appBar() {
+    return Container(
+      height: 58,
+      margin: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            "Events",
+            style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+          ),
+          GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, UserProfilePage.kRoute);
+            },
+            child: StreamBuilder<String>(
+              stream: _eventBloc.userImage,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData || snapshot.data.isEmpty) {
+                  return Icon(
+                    Icons.account_circle,
+                    size: 48,
+                  );
+                }
+                return Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 1,
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.all(Radius.circular(24)),
+                    child: Image.network(
+                      snapshot.data,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                );
+              },
+            ),
+          )
+        ],
+      ),
     );
   }
 
   Widget _createItem(Event event) {
-    var date = new DateTime.fromMillisecondsSinceEpoch(event.date);
-    var formattedDate = new DateFormat("yyyy.mm.dd").format(date);
-    return Container(
-      padding: EdgeInsets.all(8),
-      child: Card(
-        elevation: 3,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Image.network(
-                  event.imageUrl,
-                  fit: BoxFit.fill,
-                )),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: <Widget>[
-                  Text(
-                    formattedDate,
-                    style: TextStyle(fontWeight: FontWeight.w300, fontSize: 17),
+    return Card(
+      elevation: 1,
+      color: Color(0xFFF9FAFC),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      margin: EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          _eventImage(event),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                SizedBox(height: 16),
+                Text(
+                  event.title.trim(),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
                   ),
-                  SizedBox(height: 8),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  event.location.trim(),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 19,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  _eventBloc.getDuration(event.startTime, event.endTime),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  ClipRRect _eventImage(Event event) {
+    return ClipRRect(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      child: Stack(
+        children: [
+          AspectRatio(
+            aspectRatio: 16 / 9,
+            child: event.imageUrl.isEmpty
+                ? Image.asset("images/event_placeholder.jpeg")
+                : Image.network(
+                    event.imageUrl,
+                    fit: BoxFit.fill,
+                  ),
+          ),
+          Align(
+            alignment: Alignment.topRight,
+            child: Container(
+              width: 70,
+              height: 60,
+              decoration: BoxDecoration(
+                color: Color(0xFFF9FAFC),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(16),
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
                   Text(
-                    event.title,
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
+                    _eventBloc.getDay(event.date),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 22,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    _eventBloc.getMonth(event.date),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          )
+        ],
       ),
     );
   }

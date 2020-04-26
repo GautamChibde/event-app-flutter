@@ -56,7 +56,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await result.user.sendEmailVerification();
       return result.user.uid;
     } catch (error) {
-      print("error _registerUser " + error.toString());
       return Future.error(_firebaseError(error.code));
     }
   }
@@ -69,7 +68,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       return result.user;
     } catch (error) {
-      print("error _login " + error.toString());
       return Future.error(_firebaseError(error.code));
     }
   }
@@ -83,7 +81,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           _errorMessage.sink.add("Email is not verfied, Please check email and click on verification link");
         } else {
           final user = await AuthService.instance.getUserIfLoggedIn();
-          print("user verifivation  user  " + user.toString());
           if (user == null) {
             add(CreateUserProfileEvent(
                 User(id: firebaseUser.uid, email: email)));
@@ -118,10 +115,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   void onChangeRestEmail(String email) {
     if (Validator.validEmail(email)) {
       _emailValidSubject.sink.add(true);
-      print("valid " + email);
     } else {
       _emailValidSubject.sink.add(false);
-      print("invalid " + email);
     }
   }
 

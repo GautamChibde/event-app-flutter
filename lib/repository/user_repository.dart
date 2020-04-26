@@ -3,6 +3,9 @@ import 'package:eventapp/model/user.dart';
 import 'package:eventapp/repository/base_repository.dart';
 
 class UserRepository extends BaseRepository<User> {
+  UserRepository._privateConstructor();
+
+  static final UserRepository instance = UserRepository._privateConstructor();
   final userCollection = Firestore.instance.collection('users');
 
   Future<void> add(User user) {
@@ -28,5 +31,17 @@ class UserRepository extends BaseRepository<User> {
     if (doc.data == null) return null;
     User user = User.fromSnapshot(doc);
     return user;
+  }
+
+  Stream<User> getByIdStream(String id) {
+    return userCollection
+        .where("uid", isEqualTo: id)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.documents
+          .map((doc) => User.fromSnapshot(doc))
+          .toList()
+          .first;
+    });
   }
 }

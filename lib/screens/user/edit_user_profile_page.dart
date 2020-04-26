@@ -88,33 +88,38 @@ class _EditUserProfilePageState extends State<EditUserProfilePage> {
 
   Widget _profileImage() {
     return StreamBuilder<String>(
-        stream: _userBloc.imageUrl,
-        builder: (context, AsyncSnapshot<String> snapshotImage) {
-          return GestureDetector(
-            onTap: () async {
-              if (snapshotImage.hasData) {
-                await _captureImage(snapshotImage.data);
-              }
+      stream: _userBloc.imageUrl,
+      builder: (context, AsyncSnapshot<String> snapshotImage) {
+        return GestureDetector(
+          onTap: () async {
+            if (snapshotImage.hasData) {
+              await _captureImage(snapshotImage.data);
+            }
+          },
+          child: StreamBuilder<bool>(
+            stream: _userBloc.imageLoading,
+            builder: (context, snapshotLoading) {
+              if (!snapshotLoading.hasData) return Text("error");
+              if (snapshotLoading.data || !snapshotImage.hasData)
+                return Center(
+                  child: Container(
+                      height: 200,
+                      width: 200,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        border: Border.all(
+                          color: Colors.green,
+                          width: 2,
+                        ),
+                      ),
+                      child: Center(child: CircularProgressIndicator())),
+                );
+              return _userProfileAvatar(context, snapshotImage.data);
             },
-            child: StreamBuilder<bool>(
-                stream: _userBloc.imageLoading,
-                builder: (context, snapshotLoading) {
-                  if (!snapshotLoading.hasData) return Text("error");
-                  if (snapshotLoading.data || !snapshotImage.hasData)
-                    return Center(
-                      child: Container(
-                          height: 200,
-                          width: 200,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100),
-                              border:
-                                  Border.all(color: Colors.green, width: 8)),
-                          child: Center(child: CircularProgressIndicator())),
-                    );
-                  return _userProfileAvatar(context, snapshotImage.data);
-                }),
-          );
-        });
+          ),
+        );
+      },
+    );
   }
 
   Stack _userProfileAvatar(BuildContext context, String data) {
@@ -129,7 +134,7 @@ class _EditUserProfilePageState extends State<EditUserProfilePage> {
               borderRadius: BorderRadius.circular(100),
               border: Border.all(
                 color: Colors.green,
-                width: 8,
+                width: 2,
               ),
             ),
             child: Container(

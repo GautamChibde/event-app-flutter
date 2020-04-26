@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dialogs/flutter_dialogs.dart';
 
 class PasswordResetDialog extends StatefulWidget {
-  Function onSubmit;
+  final Function onSubmit;
   PasswordResetDialog({Key key, this.onSubmit}) : super(key: key);
 
   @override

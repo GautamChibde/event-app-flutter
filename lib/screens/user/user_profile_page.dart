@@ -136,7 +136,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       child: Container(
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(150),
-            border: Border.all(color: Colors.green, width: 8)),
+            border: Border.all(color: Colors.green, width: 1)),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(100.0),
           child: imageUrl.isNotEmpty

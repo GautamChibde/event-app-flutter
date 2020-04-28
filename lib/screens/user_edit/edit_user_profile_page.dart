@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:eventapp/model/user.dart';
 import 'package:eventapp/repository/user_repository.dart';
 import 'package:eventapp/screens/event/events_page.dart';
-import 'package:eventapp/screens/user/bloc/user_bloc.dart';
+import 'package:eventapp/screens/user_edit/bloc/edit_user_bloc.dart';
 import 'package:eventapp/utils/image_utils.dart';
 import 'package:eventapp/utils/permission_handler.dart';
 import 'package:flutter/cupertino.dart';
@@ -28,11 +28,11 @@ class _EditUserProfilePageState extends State<EditUserProfilePage> {
 
   _EditUserProfilePageState(this.user);
 
-  UserBloc _userBloc;
+  EditUserBloc _userBloc;
 
   @override
   void initState() {
-    _userBloc = UserBloc(UserRepository.instance, this.user);
+    _userBloc = EditUserBloc(UserRepository.instance, this.user);
     _firstNameController..text = user.firstName ?? "";
     _lastNameController..text = user.lastName ?? "";
     _bioController..text = user.bio ?? "";

@@ -3,7 +3,7 @@ import 'package:eventapp/screens/auth/password_reset_confirm_dialog.dart';
 import 'package:eventapp/screens/auth/password_reset_dialog.dart';
 import 'package:eventapp/screens/auth/signup_page.dart';
 import 'package:eventapp/screens/event/events_page.dart';
-import 'package:eventapp/screens/user/edit_user_profile_page.dart';
+import 'package:eventapp/screens/user_edit/edit_user_profile_page.dart';
 import 'package:eventapp/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

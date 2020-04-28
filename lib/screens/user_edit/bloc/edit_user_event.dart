@@ -1,9 +1,9 @@
-part of 'user_bloc.dart';
+part of 'edit_user_bloc.dart';
 
 @immutable
-abstract class UserEvent {}
+abstract class EditUserEvent {}
 
-class AddUserEvent extends UserEvent {
+class AddUserEvent extends EditUserEvent {
   final String firstName;
   final String lastName;
   final String bio;

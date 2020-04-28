@@ -1,6 +1,6 @@
 import 'package:eventapp/screens/auth/login_page.dart';
 import 'package:eventapp/screens/event/events_page.dart';
-import 'package:eventapp/screens/user/edit_user_profile_page.dart';
+import 'package:eventapp/screens/user_edit/edit_user_profile_page.dart';
 import 'package:eventapp/service/auth_service.dart';
 import 'package:flutter/material.dart';
 

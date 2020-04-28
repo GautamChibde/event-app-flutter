@@ -8,10 +8,10 @@ import 'package:eventapp/service/firebase_storage_service.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 
-part 'user_event.dart';
-part 'user_state.dart';
+part 'edit_user_event.dart';
+part 'edit_user_state.dart';
 
-class UserBloc extends Bloc<UserEvent, UserState> {
+class EditUserBloc extends Bloc<EditUserEvent, EditUserState> {
   final UserRepository userRepository;
   final User user;
 
@@ -27,18 +27,18 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   Stream<bool> get imageLoading => _imageLoadingSubject.stream;
 
-  UserBloc(this.userRepository, this.user) {
+  EditUserBloc(this.userRepository, this.user) {
     if (user.imageUrl != null || user.imageUrl.isNotEmpty) {
       _imageUrlSubject.sink.add(user.imageUrl);
     }
   }
 
   @override
-  UserState get initialState => UserInitial();
+  EditUserState get initialState => EditUserInitial();
 
   @override
-  Stream<UserState> mapEventToState(
-    UserEvent event,
+  Stream<EditUserState> mapEventToState(
+    EditUserEvent event,
   ) async* {
     if (event is AddUserEvent) {
       _loadingSubject.sink.add(true);

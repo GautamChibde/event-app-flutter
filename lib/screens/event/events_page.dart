@@ -2,7 +2,7 @@ import 'package:eventapp/screens/add_event/add_event.dart';
 import 'package:eventapp/screens/auth/login_page.dart';
 import 'package:eventapp/screens/event/event_bloc.dart';
 import 'package:eventapp/screens/event_list/event_list.dart';
-import 'package:eventapp/screens/user/user_profile_page.dart';
+import 'package:eventapp/screens/user_profile/user_profile_page.dart';
 import 'package:eventapp/utils/event_type.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

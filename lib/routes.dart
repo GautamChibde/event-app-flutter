@@ -3,8 +3,8 @@ import 'package:eventapp/screens/add_event/add_event.dart';
 import 'package:eventapp/screens/auth/login_page.dart';
 import 'package:eventapp/screens/auth/signup_page.dart';
 import 'package:eventapp/screens/event/events_page.dart';
-import 'package:eventapp/screens/user/edit_user_profile_page.dart';
-import 'package:eventapp/screens/user/user_profile_page.dart';
+import 'package:eventapp/screens/user_edit/edit_user_profile_page.dart';
+import 'package:eventapp/screens/user_profile/user_profile_page.dart';
 
 import 'package:flutter/material.dart';
 

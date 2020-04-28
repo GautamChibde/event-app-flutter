@@ -1,6 +1,6 @@
 import 'package:eventapp/model/user.dart';
-import 'package:eventapp/screens/user/bloc/user_profile_bloc.dart';
-import 'package:eventapp/screens/user/edit_user_profile_page.dart';
+import 'package:eventapp/screens/user_edit/edit_user_profile_page.dart';
+import 'package:eventapp/screens/user_profile/user_profile_bloc.dart';
 import 'package:eventapp/service/auth_service.dart';
 import 'package:eventapp/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
